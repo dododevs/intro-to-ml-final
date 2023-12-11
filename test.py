@@ -91,8 +91,8 @@ tuples = []
 # should be more efficient, adapt if possible)
 for i, row_current in df_aug.iterrows():
     for _, row_past in df_aug.iloc[i+1:].iterrows():
-        if (row_current[3] == row_past[3]) and (row_current[4] == row_past[4]):
-            tuples.append((row_current[2], row_past[2]))
+        if (row_current.iloc[3] == row_past.iloc[3]) and (row_current.iloc[4] == row_past.iloc[4]):
+            tuples.append((row_current.iloc[2], row_past.iloc[2]))
             break
 end = timer()
 
@@ -118,15 +118,14 @@ col_names = ["HOME_TEAM_ID",
 
 for (current_id, past_id) in tuples:
     print(current_id)
-    # for some reason this access via current_id throws out of bounds, despite the preceding set_index()
-    current_row = df_aug.iloc[current_id]
-    past_row = df_aug.iloc[past_id]
-    tmp.append([current_row[2], # HOME_TEAM_ID
-                current_row[3], # VISITOR_TEAM_ID
-                current_row[4], # SEASON
-                current_row[5], # HOME_TEAM_WINS
-                past_row[6], # HOME_STATS
-                past_row[7]] # AWAY_STATS
+    current_row = df_aug.loc[df_aug.index==current_id] #current_row = df_aug.iloc[current_id]
+    past_row = df_aug.loc[df_aug.index==current_id] #past_row = df_aug.iloc[past_id]
+    tmp.append([current_row['HOME_TEAM_ID'].values[0], # HOME_TEAM_ID
+                current_row['VISITOR_TEAM_ID'].values[0], # VISITOR_TEAM_ID
+                current_row['SEASON'].values[0], # SEASON
+                current_row['HOME_TEAM_WINS'].values[0], # HOME_TEAM_WINS
+                past_row['HOME_STATS'].values[0], # HOME_STATS
+                past_row['AWAY_STATS'].values[0]] # AWAY_STATS
     )
 
 df_tmp = pd.DataFrame(tmp, columns = col_names)
