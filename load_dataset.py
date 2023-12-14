@@ -16,11 +16,12 @@ def load_dataset(path_to_dataset):
 
 # Sort by descending date
     df = df.sort_values("GAME_DATE_EST", ascending = False)
+    df_sorted = df.drop(columns=["GAME_DATE_EST"], axis=1) # drop the game date because it is difficult to parse TODO: check how this can be parsed
 
 # number the rows consecutively from 0 on, due to the ordering according to date, this
 # assures, that when searching in higher indexed rows, search is always done in past games
-    df.reset_index(inplace=True)
+    df_sorted.reset_index(inplace=True)
     print("Original data info:")
-    df.info()
+    df_sorted.info()
     print("\n")
-    return df
+    return df_sorted
