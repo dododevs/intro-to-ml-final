@@ -7,12 +7,14 @@ def find_related_games(df, n_games_max, limit=None, force_recalculation=False):
     # remaining columns contain the indices of the previous game(s)
 
     filepath=f'/local/temp' # relative path to saved R matrix
-    filename=f'prev_games_matrix_limit_{str(limit)}'
+    filename=f'prev_games_matrix_limit_{str(limit)}_considering_{n_games_max}_previous_games'
 
     # check if related games have been calculated already
     try:
         R = np.load(f'{os.getcwd()}{filepath}/{filename}.npy')
         print(f'Found previously calculated related games matrix with limit {limit} at {os.getcwd()}{filepath}/{filename}')
+        # print information about the query
+        print(f'Percentage of games for which {n_games_max} previous games exist: {R[:,0].size / df.index.size:.2f}%')
         return R
 
     except:
@@ -51,14 +53,20 @@ def find_related_games(df, n_games_max, limit=None, force_recalculation=False):
                     # print(f'{prev_game_counter}. PREVIOUS MATCH of game {index} FOUND at index {index_query}')
                 if prev_game_counter >= n_games_max:
                     R = np.vstack((R,same_game_indices))
-                    print(f'FOUND all the desired {n_games_max} previous games for game {index}')
+                    print(f'FOUND all the desired {n_games_max} previous games for game {index}/{df_qpg.index.size}')
                     print(f'same game indices: {same_game_indices}')
-                    print(f'{df.iloc[same_game_indices]}') # show ORIGINAL df rows to compare results
+                    # print(f'{df.iloc[same_game_indices]}') # show ORIGINAL df rows to compare results
                     break
         try:
             os.mkdir(f'{os.getcwd()}{filepath}')
         except:
             print(f'{os.getcwd()}{filepath} already exists')
-        finally:
-            np.save(f'{os.getcwd()}{filepath}/{filename}', R)
+        
+        # save matrix
+        np.save(f'{os.getcwd()}{filepath}/{filename}', R)
+
+        # print information about the query:
+        percentage = df_qpg.index.size / df.index.size  #percentage of games with previous games
+        print(f'Percentage of games for which {n_games_max} previous games exist: {percentage:.2f}%')
+
         return R
