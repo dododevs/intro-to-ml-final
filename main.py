@@ -18,63 +18,30 @@ df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 # first entry in row is the index of the first game, all other entries
 # are the indices of games with the same teams playing in the past
 R = find_related_games(df, n_games_max, limit_df)
-
 print(R)
 
-
+# create dataframe in the size of the actual information we can use
 indices_of_games_with_enough_data = df.iloc[R[:,0]]
 df_useful = df.iloc[R[:,0]].copy()
 
-
-
-
-
-
-
-"""
-
 ## Extend dataframe with extra columns for previous game data
 # Add new columns to the dataset (for the prevoius game stats)
-df_extended = df.copy()
+# for each game, query the game stats and append them to the dataframe as columns
+# - loop through each n-game (n-1, n-2, ...), 
+# - then loop through each label of the previous game
+# - calculate the to-be-added column by iterating through the indices of the n-(i-th) game
+# - store that in an array
+# - append array as column to dataframe
+df_extended = df_useful.copy()
 labels = df.keys().values[1:-1] # columns that are to be considered from the previous games
 print(f'Considering the following columns from the previous games: {labels}')
 for ngame in range(n_games_max):
-    for column in labels:
-        new_column = f'{column}_n-{ngame+1}'
-        if new_column not in df:
-            df_extended[new_column] = None # Initialize column if it does not exist
+    for og_label in labels:
+        new_column_content = df.iloc[R[:,ngame+1]][og_label].values
+        new_column_label = f'{og_label}_n-{ngame+1}'
         
-        # iterate through the games and fill cell with data
-        for index in range(len(R[:,1])):
-            print('hi')
-            index_of_current_game = R[index,0]
-            index_of_previous_game = R[index,ngame]
-            df_extended.iloc[index_of_current_game][new_column]=df.iloc[index_of_previous_game][column]
-            print('hi')
+        df_extended[new_column_label] = new_column_content
 
-df_extended.head()
-df_filled = df_extended.copy() # dataframe to be filled with entries of previous games
-
+# debug output:
 print(df_extended.head())
-
-
-
-#for index in indices_of_games_with_enough_data:
-
-
-
-"""
-
-
-### TODO:
-# select only rows with from the dataset that are relevant
-# fill up dataframe with previous game values
-#
-# or
-# 
-# for each game, query the game stats and append them to the dataframe as columns
-#
-# or
-#
-# write a function that gets the whole row of data for a game, including the previous
-
+print(df_extended.keys())
