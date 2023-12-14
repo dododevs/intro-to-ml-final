@@ -20,7 +20,7 @@ def find_related_games(df, n_games_max, limit=None, force_recalculation=False):
         # reduce size for testing on smaller dataset
         if limit==None:
             df_qpg = df.copy()
-        if df.index.size > limit:
+        elif df.index.size > limit:
             df_qpg = df.iloc[:limit].copy()
         else:
             raise Exception('Set limit exceeds dataframe size.')

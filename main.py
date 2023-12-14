@@ -10,7 +10,7 @@ from find_related_games import find_related_games
 
 
 n_games_max = 3     # defines how many past games should be considered
-limit_df = 800        # truncates the dataset for faster testing
+limit_df = None        # truncates the dataset for faster testing, set to None if no limit is wanted
 
 df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 
