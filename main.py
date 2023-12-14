@@ -11,7 +11,7 @@ from learning import random_forest_learning
 
 
 n_games_max = 2     # defines how many past games should be considered
-limit_df = 8000        # truncates the dataset for faster testing, set to None if no limit is wanted
+limit_df = 4000        # truncates the dataset for faster testing, set to None if no limit is wanted
 
 df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 
@@ -36,6 +36,10 @@ df_useful = df.iloc[R[:,0]].copy()
 df_extended = df_useful.copy()
 labels = df.keys().values[1:-1] # columns that are to be considered from the previous games
 print(f'Considering the following columns from the previous games: {labels}')
+
+# drop current game information (except of HOME_TEAM_WINS)
+df_extended = df_extended.drop(labels, axis=1)
+
 for ngame in range(n_games_max):
     for og_label in labels:
         new_column_content = df.iloc[R[:,ngame+1]][og_label].values
