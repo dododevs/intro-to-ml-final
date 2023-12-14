@@ -7,10 +7,11 @@ from timeit import default_timer as timer
 # user functions
 from load_dataset import load_dataset
 from find_related_games import find_related_games
+from learning import random_forest_learning
 
 
-n_games_max = 3     # defines how many past games should be considered
-limit_df = None        # truncates the dataset for faster testing, set to None if no limit is wanted
+n_games_max = 2     # defines how many past games should be considered
+limit_df = 8000        # truncates the dataset for faster testing, set to None if no limit is wanted
 
 df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 
@@ -45,3 +46,9 @@ for ngame in range(n_games_max):
 # debug output:
 print(df_extended.head())
 print(df_extended.keys())
+
+
+
+### Actual machine learning
+# learn model
+rf_classifier = random_forest_learning(df_extended)

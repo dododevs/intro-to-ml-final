@@ -53,8 +53,8 @@ def find_related_games(df, n_games_max, limit=None, force_recalculation=False):
                     # print(f'{prev_game_counter}. PREVIOUS MATCH of game {index} FOUND at index {index_query}')
                 if prev_game_counter >= n_games_max:
                     R = np.vstack((R,same_game_indices))
-                    print(f'FOUND all the desired {n_games_max} previous games for game {index}/{df_qpg.index.size}')
-                    print(f'same game indices: {same_game_indices}')
+                    print(f'Found all the desired {n_games_max} previous games for game {index}/{df_qpg.index.size}')
+                    print(f'Indices of games with same opponents : {same_game_indices}')
                     # print(f'{df.iloc[same_game_indices]}') # show ORIGINAL df rows to compare results
                     break
         try:
