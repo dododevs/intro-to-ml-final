@@ -70,3 +70,71 @@ def find_related_games(df, n_games_max, limit=None, force_recalculation=False):
         print(f'Percentage of games for which {n_games_max} previous games exist: {percentage:.2f}%')
 
         return R
+
+def find_any_past_n_games(df, n_games, limit=None):
+    # truncate dataframe for testing
+    if limit != None:
+        df = df.head(limit)
+    #create copy to work on
+    res = df.copy()
+
+    # iterate through the past games by grouping by respective team id and then
+    # shifting inside those groups -> gets stats of past n home and away teams
+    # against any opponent
+    for i in range(1,n_games + 1):
+        res[[
+            "prev_PTS_home_" + str(i),
+            "prev_FG_PCT_home_" + str(i),
+            "prev_FT_PCT_home_" + str(i),
+            "prev_FG3_PCT_home_" + str(i),
+            "prev_AST_home_" + str(i),
+            "prev_REB_home_" + str(i)
+        ]] = df.groupby(["HOME_TEAM_ID"]).shift(i)[[
+            "PTS_home",
+            "FG_PCT_home",
+            "FT_PCT_home",
+            "FG3_PCT_home",
+            "AST_home",
+            "REB_home"
+        ]]
+        res[[
+            "prev_PTS_away_" + str(i),
+            "prev_FG_PCT_away_" + str(i),
+            "prev_FT_PCT_away_" + str(i),
+            "prev_FG3_PCT_away_" + str(i),
+            "prev_AST_away_" + str(i),
+            "prev_REB_away_" + str(i)
+        ]] = df.groupby(["VISITOR_TEAM_ID"]).shift(i)[[
+            "PTS_away",
+            "FG_PCT_away",
+            "FT_PCT_away",
+            "FG3_PCT_away",
+            "AST_away",
+            "REB_away"
+        ]]
+        res = res.copy() # prevent fragemntation
+
+    # drop NA and all information unneccesary for prediction
+    res = res.dropna()
+    res = res.drop(["GAME_ID",
+                    "GAME_DATE_EST",
+                    "HOME_TEAM_ID",
+                    "VISITOR_TEAM_ID",
+                    "SEASON",
+                    "PTS_home",
+                    "FG_PCT_home",
+                    "FT_PCT_home",
+                    "FG3_PCT_home",
+                    "AST_home",
+                    "REB_home",
+                    "PTS_away",
+                    "FG_PCT_away",
+                    "FT_PCT_away",
+                    "FG3_PCT_away",
+                    "AST_away",
+                    "REB_away"], axis=1)
+
+    print(f"Past {n_games} games data info:")
+    res.info()
+    print("\n")
+    return res

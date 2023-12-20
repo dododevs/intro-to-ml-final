@@ -11,9 +11,15 @@ from learning import random_forest_learning
 
 
 n_games_max = 2     # defines how many past games should be considered
-limit_df = 4000        # truncates the dataset for faster testing, set to None if no limit is wanted
+limit_df = 4000       # truncates the dataset for faster testing, set to None if no limit is wanted
 
-df = load_dataset("local/games.csv") # load dataset from csv into dataframe
+df = load_dataset("local/games.csv", ascending = False) # load dataset from csv into dataframe
+# removed dropping of GAME_DATE_EST in load_dataset so it's done here
+df.drop("GAME_DATE_EST", axis = 1, inplace = True)
+
+# number the rows consecutively from 0 on, due to the ordering according to date, this
+# assures, that when searching in higher indexed rows, search is always done in past games
+df.reset_index(inplace=True)
 
 # a matrix with each row having the indices of the related games
 # first entry in row is the index of the first game, all other entries
