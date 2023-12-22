@@ -1,7 +1,6 @@
 import datetime
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass
 from timeit import default_timer as timer
 
 # user functions
@@ -10,8 +9,8 @@ from find_related_games import find_related_games
 from learning import random_forest_learning
 
 
-n_games_max = 2     # defines how many past games should be considered
-limit_df = 4000       # truncates the dataset for faster testing, set to None if no limit is wanted
+n_games_max = 4     # defines how many past games should be considered
+limit_df = None     # truncates the dataset for faster testing, set to None if no limit is wanted
 
 df = load_dataset("local/games.csv", ascending = False) # load dataset from csv into dataframe
 # removed dropping of GAME_DATE_EST in load_dataset so it's done here
@@ -28,8 +27,8 @@ R = find_related_games(df, n_games_max, limit_df)
 print(R)
 
 # create dataframe in the size of the actual information we can use
-indices_of_games_with_enough_data = df.iloc[R[:,0]]
-df_useful = df.iloc[R[:,0]].copy()
+#indices_of_games_with_enough_data = df.iloc[R[:,0]]
+#df_useful = df.iloc[R[:,0]].copy()
 
 ## Extend dataframe with extra columns for previous game data
 # Add new columns to the dataset (for the prevoius game stats)
@@ -39,15 +38,16 @@ df_useful = df.iloc[R[:,0]].copy()
 # - calculate the to-be-added column by iterating through the indices of the n-(i-th) game
 # - store that in an array
 # - append array as column to dataframe
-df_extended = df_useful.copy()
+#df_extended = df_useful.copy()
+df_extended = df.iloc[R[:,0]].copy()
 labels = df.keys().values[1:-1] # columns that are to be considered from the previous games
-print(f'Considering the following columns from the previous games: {labels}')
+print(f'Considering the following columns from the previous games: {labels[1:]}')
 
 # drop current game information (except of HOME_TEAM_WINS)
 df_extended = df_extended.drop(labels, axis=1)
 
 for ngame in range(n_games_max):
-    for og_label in labels:
+    for og_label in labels[1:]:
         new_column_content = df.iloc[R[:,ngame+1]][og_label].values
         new_column_label = f'{og_label}_n-{ngame+1}'
         
@@ -61,4 +61,4 @@ print(df_extended.keys())
 
 ### Actual machine learning
 # learn model
-rf_classifier = random_forest_learning(df_extended)
+rf_classifier = random_forest_learning(df_extended, scaler = "MinMax")
