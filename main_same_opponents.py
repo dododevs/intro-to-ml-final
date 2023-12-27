@@ -11,6 +11,7 @@ from learning import random_forest_learning
 
 n_games_max = 4     # defines how many past games should be considered
 limit_df = None     # truncates the dataset for faster testing, set to None if no limit is wanted
+sample_size = 100   # number of times to train model to get good accuracy mean
 
 df = load_dataset("local/games.csv", ascending = False) # load dataset from csv into dataframe
 # removed dropping of GAME_DATE_EST in load_dataset so it's done here
@@ -60,5 +61,20 @@ print(df_extended.keys())
 
 
 ### Actual machine learning
+# define params
+X_labels = df_extended.keys().values[2:]
+y_label = "HOME_TEAM_WINS"
+scaler = "MinMax"
 # learn model
-rf_classifier = random_forest_learning(df_extended, scaler = "MinMax")
+rf_class_accuracy = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# learn model multiple times for statistical analysis of results
+store = np.empty(sample_size)
+for i in range(sample_size):
+    print(f'Learning model {i}/{sample_size}')
+    store[i] = random_forest_learning(df_extended, X_labels, y_label, scaler)
+print(store)
+print(f'Mean: {np.mean(store)}')
+print(f'std : {np.std(store)}')
+print(f'min : {np.min(store)}')
+print(f'max : {np.max(store)}')

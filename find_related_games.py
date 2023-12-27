@@ -116,23 +116,9 @@ def find_any_past_n_games(df, n_games, limit=None):
 
     # drop NA and all information unneccesary for prediction
     res = res.dropna()
-    res = res.drop(["GAME_ID",
-                    "GAME_DATE_EST",
-                    "HOME_TEAM_ID",
-                    "VISITOR_TEAM_ID",
-                    "SEASON",
-                    "PTS_home",
-                    "FG_PCT_home",
-                    "FT_PCT_home",
-                    "FG3_PCT_home",
-                    "AST_home",
-                    "REB_home",
-                    "PTS_away",
-                    "FG_PCT_away",
-                    "FT_PCT_away",
-                    "FG3_PCT_away",
-                    "AST_away",
-                    "REB_away"], axis=1)
+    drop_labels = df.keys().values[:-1]
+    print(f'Dropping following cols: {drop_labels}\n')
+    res = res.drop(drop_labels, axis=1)
 
     print(f"Past {n_games} games data info:")
     res.info()

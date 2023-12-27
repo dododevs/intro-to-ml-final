@@ -1,16 +1,44 @@
 import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
+import numpy as np
 
 from load_dataset import load_dataset
 from find_related_games import find_any_past_n_games
+from learning import random_forest_learning
 
-n_games = 50 # number of past games to consider
+n_games = 4 # number of past games to consider
 limit = None # truncate dataframe for testing (saves time) - None for complete df
+sample_size = 100   # number of times to train model to get good accuracy mean
 
 df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 
+df_aug = find_any_past_n_games(df, n_games, limit)
+
+## acutall learning
+# define params
+X_labels = df_aug.keys().values[1:]
+y_label = "HOME_TEAM_WINS"
+scaler = "MinMax"
+# learn model
+rf_class_accuracy = random_forest_learning(df_aug, X_labels, y_label, scaler, random_state = 26)
+
+# learn model multiple times for statistical analysis of results
+store = np.empty(sample_size)
+for i in range(sample_size):
+    print(f'Learning model {i}/{sample_size}')
+    store[i] = random_forest_learning(df_aug, X_labels, y_label, scaler)
+print(store)
+print(f'Mean: {np.mean(store)}')
+print(f'std : {np.std(store)}')
+print(f'min : {np.min(store)}')
+print(f'max : {np.max(store)}')
+
+
+
+
+
+# just not to forget the syntax xD
 # df.boxplot(["FG_PCT_home",
 #             "FT_PCT_home",
 #             "FG3_PCT_home",
@@ -32,11 +60,11 @@ df = load_dataset("local/games.csv") # load dataset from csv into dataframe
 # plt.show()
 
 # remove outliers
-df.drop(df[df.FG3_PCT_home > .90].index, inplace = True)
-df.drop(df[df.FG3_PCT_away > .90].index, inplace = True)
-df.drop(df[df.PTS_home < 50].index, inplace = True)
-df.drop(df[df.PTS_away < 50].index, inplace = True)
-df.drop(df[df.REB_away > 75].index, inplace = True)
+#df.drop(df[df.FG3_PCT_home > .90].index, inplace = True)
+#df.drop(df[df.FG3_PCT_away > .90].index, inplace = True)
+#df.drop(df[df.PTS_home < 50].index, inplace = True)
+#df.drop(df[df.PTS_away < 50].index, inplace = True)
+#df.drop(df[df.REB_away > 75].index, inplace = True)
 
 # df.boxplot(["FG_PCT_home",
 #             "FT_PCT_home",
@@ -57,37 +85,3 @@ df.drop(df[df.REB_away > 75].index, inplace = True)
 #             ])
 #
 # plt.show()
-
-df_aug = find_any_past_n_games(df, n_games, limit)
-
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn import preprocessing
-
-# create working copy
-#df_work = df_aug.copy()
-
-# scale values before
-x = df_aug.values
-
-# scaler = preprocessing.StandardScaler().fit(x)
-# x_scaled = scaler.transform(x)
-
-scaler = preprocessing.MinMaxScaler()
-x_scaled = scaler.fit_transform(x)
-
-df_work = pd.DataFrame(x_scaled, columns = df_aug.columns, index = df_aug.index)
-df_work["HOME_TEAM_WINS"] = df_work["HOME_TEAM_WINS"].astype(dtype=int)
-
-Y = df_work["HOME_TEAM_WINS"]
-X = df_work.drop("HOME_TEAM_WINS", axis=1)
-
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=26)
-
-rf_classifier = RandomForestClassifier()
-rf_classifier.fit(X_train, Y_train)
-Y_rf_class = rf_classifier.predict(X_test)
-rf_class_accuracy = accuracy_score(Y_rf_class, Y_test)
-
-print(rf_class_accuracy)

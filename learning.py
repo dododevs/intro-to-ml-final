@@ -5,17 +5,17 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
-def random_forest_learning(df, scaler = None):
+def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     """Learning of random forest classifier"""
     # scaler can be one of the strings "MinMax" or "Standard" or None for no scaling
 
     df_work = df.convert_dtypes().copy()
 
-    y = df_work["HOME_TEAM_WINS"]
-    X = df_work.drop("HOME_TEAM_WINS", axis=1)
+    y = df_work[y_label]
+    X = df_work[X_labels]
 
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=26)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
 
     match scaler:
         case "MinMax":
@@ -39,6 +39,8 @@ def random_forest_learning(df, scaler = None):
     print(f'RANDOM FOREST CLASS ACCURACY {rf_class_accuracy}')
     print('RF complete')
 
-    return rf_classifier
-    # return value does not make any sense without 
-    # the split up dataset
+    # return accuracy for statistical analysis
+    return rf_class_accuracy
+
+    # learner as return value does not make any sense without the split up dataset
+    # return rf_classifier
