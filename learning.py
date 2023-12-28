@@ -1,12 +1,31 @@
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, recall_score, confusion_matrix, f1_score, precision_recall_curve, roc_curve, auc
+
+from timeit import default_timer as timer
 
 def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
-    """Learning of random forest classifier"""
+    return classification_learning("rf", df, X_labels, y_label, scaler, test_size, random_state)
+
+def support_vector_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
+    return classification_learning("svc", df, X_labels, y_label, scaler, test_size, random_state)
+
+def bayes_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
+    return classification_learning("nb", df, X_labels, y_label, scaler, test_size, random_state)
+
+def knn_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
+    return classification_learning("knn", df, X_labels, y_label, scaler, test_size, random_state)
+
+def dummy_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
+    return classification_learning("dummy", df, X_labels, y_label, scaler, test_size, random_state)
+
+def classification_learning(model, df, X_labels, y_label, scaler, test_size, random_state):
+    """Learning of classifier"""
     # scaler can be one of the strings "MinMax" or "Standard" or None for no scaling
 
     df_work = df.convert_dtypes().copy()
@@ -14,33 +33,60 @@ def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, ra
     y = df_work[y_label]
     X = df_work[X_labels]
 
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
 
+    X_train, X_test = scale_train_test(X_train, X_test, scaler)
+
+    match model:
+        case "rf":
+            print('Start Random Forest classification')
+            classifier = RandomForestClassifier()
+        case "svc":
+            print('Start Support Vector classification')
+            classifier = SVC(probability=True)
+        case "nb":
+            print('Start Naive Bayes classification')
+            classifier = BernoulliNB()
+        case "knn":
+            print('Start k-nearest neighbors classification')
+            classifier = KNeighborsClassifier()
+        case "dummy":
+            print('Start dummy classification')
+            classifier = DummyClassifier()
+        case _:
+            raise Exception('Unknown classification model')
+    # train the classifier, meassure wall time consumption of training plus
+    # simple (non-probabilistic) prediction as simple efficency score
+    start = timer()
+    classifier.fit(X_train, y_train)
+    y_class = classifier.predict(X_test)
+    time_consumption = timer() - start
+
+    # calculate more assessment scores
+    accuracy = accuracy_score(y_class, y_test)
+    probs = classifier.predict_proba(X_test)[:, 1]
+    precision, recall, _ = precision_recall_curve(y_test, probs)
+    pr_auc = auc(recall, precision)
+    fpr, tpr, _ = roc_curve(y_test, probs)
+    roc_auc = auc(fpr, tpr)
+
+    print("Classification training and assessment computation done\n")
+
+    # return assessment scores
+    return accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption
+
+def scale_train_test(X_train, X_test, scaler):
     match scaler:
         case "MinMax":
-            print('Performing MinMax scaling on data')
             scl = MinMaxScaler()
             X_train = scl.fit_transform(X_train)
             X_test = scl.transform(X_test)
+            print('MinMax scaling done')
         case "Standard":
-            print('Performing Standard scaling on data')
             scl = StandardScaler()
             X_train = scl.fit_transform(X_train)
             X_test = scl.transform(X_test)
+            print('Standard scaling done')
         case _:
             print('No scaling')
-
-    rf_classifier = RandomForestClassifier()
-    rf_classifier.fit(X_train, y_train)
-    y_rf_class = rf_classifier.predict(X_test)
-    rf_class_accuracy = accuracy_score(y_rf_class, y_test)
-
-    print(f'RANDOM FOREST CLASS ACCURACY {rf_class_accuracy}')
-    print('RF complete')
-
-    # return accuracy for statistical analysis
-    return rf_class_accuracy
-
-    # learner as return value does not make any sense without the split up dataset
-    # return rf_classifier
+    return X_train, X_test

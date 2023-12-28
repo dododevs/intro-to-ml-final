@@ -1,17 +1,17 @@
 import datetime
 import numpy as np
 import pandas as pd
-from timeit import default_timer as timer
 
 # user functions
 from load_dataset import load_dataset
 from find_related_games import find_related_games
-from learning import random_forest_learning
+from learning import random_forest_learning, support_vector_learning, bayes_learning, knn_learning, dummy_learning
+from plot import compare_binary_classification
 
 
 n_games_max = 4     # defines how many past games should be considered
 limit_df = None     # truncates the dataset for faster testing, set to None if no limit is wanted
-sample_size = 100   # number of times to train model to get good accuracy mean
+sample_size = 0   # number of times to train model to get good accuracy mean
 
 df = load_dataset("local/games.csv", ascending = False) # load dataset from csv into dataframe
 # removed dropping of GAME_DATE_EST in load_dataset so it's done here
@@ -58,23 +58,85 @@ for ngame in range(n_games_max):
 print(df_extended.head())
 print(df_extended.keys())
 
-
+# prepare containers for assessment ploting
+model_name_plot, prec_rec_plot, pr_auc_plot, fpr_tpr_plot, roc_auc_plot, acc_plot, time_plot  = [[] for _ in range(7)]
 
 ### Actual machine learning
 # define params
 X_labels = df_extended.keys().values[2:]
 y_label = "HOME_TEAM_WINS"
 scaler = "MinMax"
-# learn model
-rf_class_accuracy = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
 
-# learn model multiple times for statistical analysis of results
-store = np.empty(sample_size)
-for i in range(sample_size):
-    print(f'Learning model {i}/{sample_size}')
-    store[i] = random_forest_learning(df_extended, X_labels, y_label, scaler)
-print(store)
-print(f'Mean: {np.mean(store)}')
-print(f'std : {np.std(store)}')
-print(f'min : {np.min(store)}')
-print(f'max : {np.max(store)}')
+# learn random forest
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# store assessment scores
+model_name_plot.append('RF')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
+
+# learn support vector machine
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# store assessment scores
+model_name_plot.append('SVC')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
+
+# learn naive bayes
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = bayes_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# store assessment scores
+model_name_plot.append('NB')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
+
+# learn k-nearest neighbors
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = knn_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# store assessment scores
+model_name_plot.append('KNN')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
+
+# learn dummy
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = dummy_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+
+# store rf assessment scores
+model_name_plot.append('DUMMY')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
+
+compare_binary_classification(model_name_plot, prec_rec_plot, pr_auc_plot, fpr_tpr_plot, roc_auc_plot, acc_plot, time_plot)
+
+if sample_size > 0:
+    # learn model multiple times for statistical analysis of results
+    store = np.empty(sample_size)
+    for i in range(sample_size):
+        print(f'Learning model {i}/{sample_size}')
+        store[i] = random_forest_learning(df_extended, X_labels, y_label, scaler)
+    print(store)
+    print(f'Mean: {np.mean(store)}')
+    print(f'std : {np.std(store)}')
+    print(f'min : {np.min(store)}')
+    print(f'max : {np.max(store)}')
