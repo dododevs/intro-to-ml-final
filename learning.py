@@ -6,6 +6,7 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, recall_score, confusion_matrix, f1_score, precision_recall_curve, roc_curve, auc
+import numpy as np
 
 from timeit import default_timer as timer
 
@@ -40,7 +41,7 @@ def classification_learning(model, df, X_labels, y_label, scaler, test_size, ran
     match model:
         case "rf":
             print('Start Random Forest classification')
-            classifier = RandomForestClassifier()
+            classifier = RandomForestClassifier()# min_samples_split=1000, max_depth=4)
         case "svc":
             print('Start Support Vector classification')
             classifier = SVC(probability=True)
@@ -69,6 +70,25 @@ def classification_learning(model, df, X_labels, y_label, scaler, test_size, ran
     pr_auc = auc(recall, precision)
     fpr, tpr, _ = roc_curve(y_test, probs)
     roc_auc = auc(fpr, tpr)
+
+    # print additional information if the model is random forest:
+    if model == "rf":
+        # calculate feature importances
+        importances = classifier.feature_importances_
+        indices = np.argsort(importances)[::-1]
+        print(f"Feature ranking for {model}:")
+        for f in range(X_train.shape[1]):
+            print(f"{f + 1}. Feature {X_labels[indices[f]]} - importance: {importances[indices[f]]}")
+
+        # Access a specific tree from the forest (in this case, the first tree, change index as needed)
+        tree_to_inspect = classifier.estimators_[0]
+
+        # Get information about the tree
+        print(f"Tree Information:")
+        print(f"Number of nodes: {tree_to_inspect.tree_.node_count}")
+        print(f"Tree depth: {tree_to_inspect.tree_.max_depth}")
+        print(f"Feature importance: {tree_to_inspect.feature_importances_}")
+        print("-----------------------")
 
     print("Classification training and assessment computation done\n")
 
