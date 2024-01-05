@@ -67,8 +67,8 @@ X_labels = df_extended.keys().values[2:]
 y_label = "HOME_TEAM_WINS"
 scaler = "MinMax"
 
-min_samples_split = [2,50]
-max_depth = [4,8,12,20]
+min_samples_split = [2] # This parameter does not seem to make a difference
+max_depth = [8]         # change max_depth parameter here
 print(f'Iterating through RF parameters: min_samples_split:{min_samples_split} max_depth:{max_depth}')
 
 for mins in min_samples_split:
@@ -88,16 +88,16 @@ for mins in min_samples_split:
         time_plot.append(time_consumption)
 
 # learn support vector machine
-#accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
 
 # store assessment scores
-#model_name_plot.append('SVC')
-#acc_plot.append(accuracy)
-#prec_rec_plot.append([precision, recall])
-#pr_auc_plot.append(pr_auc)
-#fpr_tpr_plot.append([fpr, tpr])
-#roc_auc_plot.append(roc_auc)
-#time_plot.append(time_consumption)
+model_name_plot.append('SVC')
+acc_plot.append(accuracy)
+prec_rec_plot.append([precision, recall])
+pr_auc_plot.append(pr_auc)
+fpr_tpr_plot.append([fpr, tpr])
+roc_auc_plot.append(roc_auc)
+time_plot.append(time_consumption)
 
 # learn naive bayes
 accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = bayes_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
