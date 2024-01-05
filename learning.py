@@ -10,8 +10,8 @@ import numpy as np
 
 from timeit import default_timer as timer
 
-def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
-    return classification_learning("rf", df, X_labels, y_label, scaler, test_size, random_state)
+def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None, min_samples_split=2, max_depth=None):
+    return classification_learning("rf", df, X_labels, y_label, scaler, test_size, random_state, min_samples_split, max_depth)
 
 def support_vector_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("svc", df, X_labels, y_label, scaler, test_size, random_state)
@@ -25,7 +25,7 @@ def knn_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state
 def dummy_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("dummy", df, X_labels, y_label, scaler, test_size, random_state)
 
-def classification_learning(model, df, X_labels, y_label, scaler, test_size, random_state):
+def classification_learning(model, df, X_labels, y_label, scaler, test_size, random_state, min_samples_split=2, max_depth=None):
     """Learning of classifier"""
     # scaler can be one of the strings "MinMax" or "Standard" or None for no scaling
 
@@ -41,7 +41,7 @@ def classification_learning(model, df, X_labels, y_label, scaler, test_size, ran
     match model:
         case "rf":
             print('Start Random Forest classification')
-            classifier = RandomForestClassifier()# min_samples_split=1000, max_depth=4)
+            classifier = RandomForestClassifier(min_samples_split=min_samples_split, max_depth=max_depth)
         case "svc":
             print('Start Support Vector classification')
             classifier = SVC(probability=True)

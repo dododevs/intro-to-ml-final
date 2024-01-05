@@ -7,8 +7,8 @@ def compare_binary_classification(names, prec_rec_values, prec_rec_auc, roc_valu
   cmap = sns.color_palette('Paired')[1::2]
   fig, axs = plt.subplots(1, 4, figsize=(16, 5))
   for i in range(len(names)):
-    axs[0].plot(roc_values[i][0], roc_values[i][1], label='{} AUC {:.3f}'.format(names[i], roc_auc[i]), c=cmap[i])
-    axs[1].plot(prec_rec_values[i][1], prec_rec_values[i][0], label='{} AUC-PR {:.3f}'.format(names[i], prec_rec_auc[i]), c=cmap[i])
+    axs[0].plot(roc_values[i][0], roc_values[i][1], label='{} AUC {:.3f}'.format(names[i], roc_auc[i]), )#c=cmap[i])
+    axs[1].plot(prec_rec_values[i][1], prec_rec_values[i][0], label='{} AUC-PR {:.3f}'.format(names[i], prec_rec_auc[i]))#, c=cmap[i])
   axs[0].legend(loc='lower right')
   axs[0].set_xlabel('FPR')
   axs[0].set_ylabel('TPR')
@@ -37,3 +37,11 @@ def compare_binary_classification(names, prec_rec_values, prec_rec_auc, roc_valu
   axs[3].set_title('Efficency')
   plt.tight_layout()
   plt.show()
+
+  plt.figure()
+  x = names
+  y = roc_auc
+  plt.bar(x,y)
+  plt.title('ROC AUC comparison')
+  plt.xlabel('model')
+  plt.ylabel('AUC')

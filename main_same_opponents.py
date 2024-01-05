@@ -67,29 +67,37 @@ X_labels = df_extended.keys().values[2:]
 y_label = "HOME_TEAM_WINS"
 scaler = "MinMax"
 
-# learn random forest
-accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+min_samples_split = [2,50]
+max_depth = [4,8,12,20]
+print(f'Iterating through RF parameters: min_samples_split:{min_samples_split} max_depth:{max_depth}')
 
-# store assessment scores
-model_name_plot.append('RF')
-acc_plot.append(accuracy)
-prec_rec_plot.append([precision, recall])
-pr_auc_plot.append(pr_auc)
-fpr_tpr_plot.append([fpr, tpr])
-roc_auc_plot.append(roc_auc)
-time_plot.append(time_consumption)
+for mins in min_samples_split:
+    for maxd in max_depth:
+        print(f'min_samples_split: {mins} max_depth: {maxd}')
+
+        # learn random forest
+        accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26, min_samples_split=mins, max_depth=maxd)
+
+        # store assessment scores
+        model_name_plot.append(f'RF{maxd}')
+        acc_plot.append(accuracy)
+        prec_rec_plot.append([precision, recall])
+        pr_auc_plot.append(pr_auc)
+        fpr_tpr_plot.append([fpr, tpr])
+        roc_auc_plot.append(roc_auc)
+        time_plot.append(time_consumption)
 
 # learn support vector machine
-accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+#accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
 
 # store assessment scores
-model_name_plot.append('SVC')
-acc_plot.append(accuracy)
-prec_rec_plot.append([precision, recall])
-pr_auc_plot.append(pr_auc)
-fpr_tpr_plot.append([fpr, tpr])
-roc_auc_plot.append(roc_auc)
-time_plot.append(time_consumption)
+#model_name_plot.append('SVC')
+#acc_plot.append(accuracy)
+#prec_rec_plot.append([precision, recall])
+#pr_auc_plot.append(pr_auc)
+#fpr_tpr_plot.append([fpr, tpr])
+#roc_auc_plot.append(roc_auc)
+#time_plot.append(time_consumption)
 
 # learn naive bayes
 accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = bayes_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
