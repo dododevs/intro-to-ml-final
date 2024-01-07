@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for n in $(seq 4 50)
+do
+  echo "Start on run number $n"
+  python main_past_n_games.py $n > output/png_n${n}_wAST_woFTPCT.txt
+done

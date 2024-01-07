@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for filename in $(ls output)
+do
+    echo "$filename: $(tail -n 1 output/$filename)"
+done
