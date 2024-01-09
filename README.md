@@ -11,3 +11,27 @@ Interesting literature and websites:
  - [Predict NBA games, make money - machine learning project](https://towardsdatascience.com/predict-nba-games-make-money-machine-learning-project-b222b33f70a3)
  - [Predicting NBA Game Outcomes](https://cs229.stanford.edu/proj2017/final-reports/5231214.pdf)
  - [Predicting the Outcome of NBA Games Using Machine Learing](https://medium.com/nerd-for-tech/predicting-the-outcome-of-nba-games-using-machine-learning-676a62549040)
+
+# Quick code overview
+## main_test_player_stats.py
+Just for testing the approach with including the player stats, can be ignored
+
+## NBA_DataExploration.ipynb
+From the beginning of the project, can be ignored
+
+## main_past_n_games
+Code by Eugenio and Andrea and Theo, just sorts the last games of the team against any opponents
+
+## main_same_oppenents.py
+Last n_games of a team against the opposing team
+
+### learning.py
+used by main_past_n_games and main_same_opponents
+scaling, dividing train, test set
+NO CV! TODO
+
+### load_dataset
+Loads and sorts the game data by date
+
+### plot.py
+Plots the results and some performance indices
