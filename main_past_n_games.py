@@ -12,19 +12,11 @@ import sys
 
 n_games = int(sys.argv[1]) # number of past games to consider
 limit = None # truncate dataframe for testing (saves time) - None for complete df
-sample_size = 100   # number of times to train model to get good accuracy mean
+sample_size = 50   # number of times to train model to get good accuracy mean
 min_samples_split = [2] # This parameter does not seem to make a difference
 max_depth = list(range(4,5,1))         # change max_depth parameter here
 
 df = load_dataset("local/games.csv") # load dataset from csv into dataframe
-
-# calculate differences in stats --- work in progress, needs also adjustments ind find_any_past_n_games and maybe further down this script
-# df_aug["PTS_diff"] = df["PTS_home"] - df["PTS_away"]
-# df_aug["FG_PCT_diff"] = df_aug[[s for s in df_aug.columns if 'prev_FG_PCT_home_' in s]].sum(axis=1) / n_games
-# df_aug["FT_PCT_diff"] = df_aug[[s for s in df_aug.columns if 'prev_FT_PCT_home_' in s]].sum(axis=1) / n_games
-# df_aug["FG3_PCT_diff"] = df_aug[[s for s in df_aug.columns if 'prev_FG3_PCT_home_' in s]].sum(axis=1) / n_games
-# df_aug["AST_diff"] = df_aug[[s for s in df_aug.columns if 'prev_AST_home_' in s]].sum(axis=1) / n_games
-# df_aug["REB_diff"] = df_aug[[s for s in df_aug.columns if 'prev_REB_home_' in s]].sum(axis=1) / n_games
 
 df_aug = find_any_past_n_games(df, n_games, limit)
 
@@ -43,12 +35,23 @@ df_aug["prev_FG3_PCT_away"] = df_aug[[s for s in df_aug.columns if 'prev_FG3_PCT
 df_aug["prev_AST_away"] = df_aug[[s for s in df_aug.columns if 'prev_AST_away_' in s]].sum(axis=1) / n_games
 df_aug["prev_REB_away"] = df_aug[[s for s in df_aug.columns if 'prev_REB_away_' in s]].sum(axis=1) / n_games
 
+# calculate differences in stats
+df_aug["prev_PTS_diff"] = df_aug["prev_PTS_home"] - df_aug["prev_PTS_away"]
+df_aug["prev_FG_PCT_diff"] = df_aug["prev_FG_PCT_home"] - df_aug["prev_FG_PCT_away"]
+df_aug["prev_FT_PCT_diff"] = df_aug["prev_FT_PCT_home"] - df_aug["prev_FT_PCT_away"]
+df_aug["prev_FG3_PCT_diff"] = df_aug["prev_FG3_PCT_home"] - df_aug["prev_FG3_PCT_away"]
+df_aug["prev_AST_diff"] = df_aug["prev_AST_home"] - df_aug["prev_AST_away"]
+df_aug["prev_REB_diff"] = df_aug["prev_REB_home"] - df_aug["prev_REB_away"]
+
 #drop previous stats
 end_index = n_games * 12
 df_aug.drop(df_aug.keys().values[1:end_index+1], axis = 1, inplace = True)
 # drop features with little importance
 df_aug.drop(["prev_FT_PCT_away", "prev_FT_PCT_home"], axis = 1, inplace = True)
-#df_aug.drop(["prev_AST_home", "prev_AST_away"], axis = 1, inplace = True) # tests show, that the existence of AST is marginally better
+df_aug.drop(["prev_AST_home", "prev_AST_away"], axis = 1, inplace = True) # tests show, that the existence of AST is marginally better
+df_aug.drop(["prev_PTS_home", "prev_PTS_away"], axis = 1, inplace = True)
+# df_aug.drop(["prev_FG3_PCT_away", "prev_FG3_PCT_diff"], axis = 1, inplace = True)
+df_aug.drop("prev_FT_PCT_diff", axis = 1, inplace = True)
 df_aug.info()
 
 # prepare containers for assessment ploting
