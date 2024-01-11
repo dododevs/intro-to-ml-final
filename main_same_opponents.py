@@ -37,56 +37,56 @@ R = find_related_games(df, n_games_max, limit_df)
 # - calculate the to-be-added column by iterating through the indices of the n-(i-th) game
 # - store that in an array
 # - append array as column to dataframe
-df_extended = df.iloc[R[:,0]].copy()
+df_aug = df.iloc[R[:,0]].copy()
 labels = df.keys().values[1:-1] # columns that are to be considered from the previous games
 print(f'Considering the following columns from the previous games: {labels[4:]}')
 
 # drop current game information (except of HOME_TEAM_WINS)
-df_extended = df_extended.drop(labels, axis=1)
+df_aug = df_aug.drop(labels, axis=1)
 
 for ngame in range(n_games_max):
     for og_label in labels[4:]:
         new_column_content = df.iloc[R[:,ngame+1]][og_label].values
         new_column_label = f'{og_label}_n-{ngame+1}'
         
-        df_extended[new_column_label] = new_column_content
+        df_aug[new_column_label] = new_column_content
 
-df_extended.drop("index", axis = 1, inplace = True)
+df_aug.drop("index", axis = 1, inplace = True)
 
 # debug output:
-print(df_extended.head())
-print(df_extended.keys())
+print(df_aug.head())
+print(df_aug.keys())
 
 # calc mean of previous stats
-df_extended["prev_PTS_home"] = df_extended[[s for s in df_extended.columns if 'PTS_home_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FG_PCT_home"] = df_extended[[s for s in df_extended.columns if 'FG_PCT_home_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FT_PCT_home"] = df_extended[[s for s in df_extended.columns if 'FT_PCT_home_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FG3_PCT_home"] = df_extended[[s for s in df_extended.columns if 'FG3_PCT_home_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_AST_home"] = df_extended[[s for s in df_extended.columns if 'AST_home_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_REB_home"] = df_extended[[s for s in df_extended.columns if 'REB_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_PTS_home"] = df_aug[[s for s in df_aug.columns if 'PTS_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FG_PCT_home"] = df_aug[[s for s in df_aug.columns if 'FG_PCT_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FT_PCT_home"] = df_aug[[s for s in df_aug.columns if 'FT_PCT_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FG3_PCT_home"] = df_aug[[s for s in df_aug.columns if 'FG3_PCT_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_AST_home"] = df_aug[[s for s in df_aug.columns if 'AST_home_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_REB_home"] = df_aug[[s for s in df_aug.columns if 'REB_home_' in s]].sum(axis=1) / n_games_max
 
-df_extended["prev_PTS_away"] = df_extended[[s for s in df_extended.columns if 'PTS_away_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FG_PCT_away"] = df_extended[[s for s in df_extended.columns if 'FG_PCT_away_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FT_PCT_away"] = df_extended[[s for s in df_extended.columns if 'FT_PCT_away_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_FG3_PCT_away"] = df_extended[[s for s in df_extended.columns if 'FG3_PCT_away_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_AST_away"] = df_extended[[s for s in df_extended.columns if 'AST_away_' in s]].sum(axis=1) / n_games_max
-df_extended["prev_REB_away"] = df_extended[[s for s in df_extended.columns if 'REB_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_PTS_away"] = df_aug[[s for s in df_aug.columns if 'PTS_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FG_PCT_away"] = df_aug[[s for s in df_aug.columns if 'FG_PCT_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FT_PCT_away"] = df_aug[[s for s in df_aug.columns if 'FT_PCT_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_FG3_PCT_away"] = df_aug[[s for s in df_aug.columns if 'FG3_PCT_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_AST_away"] = df_aug[[s for s in df_aug.columns if 'AST_away_' in s]].sum(axis=1) / n_games_max
+df_aug["prev_REB_away"] = df_aug[[s for s in df_aug.columns if 'REB_away_' in s]].sum(axis=1) / n_games_max
 
 #drop previous stats
 end_index = n_games_max * 12
-df_extended.drop(df_extended.keys().values[1:end_index+1], axis = 1, inplace = True)
+df_aug.drop(df_aug.keys().values[1:end_index+1], axis = 1, inplace = True)
 
 # debug output:
-print(df_extended.head())
-print(df_extended.keys())
-df_extended.info()
+print(df_aug.head())
+print(df_aug.keys())
+df_aug.info()
 
 # prepare containers for assessment ploting
 model_name_plot, prec_rec_plot, pr_auc_plot, fpr_tpr_plot, roc_auc_plot, acc_plot, time_plot  = [[] for _ in range(7)]
 
 ### Actual machine learning
 # define params
-X_labels = df_extended.keys().values[1:]
+X_labels = df_aug.keys().values[1:]
 y_label = "HOME_TEAM_WINS"
 scaler = "MinMax"
 
@@ -99,7 +99,7 @@ for mins in min_samples_split:
         print(f'min_samples_split: {mins} max_depth: {maxd}')
 
         # learn random forest
-        accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = random_forest_learning(df_extended, X_labels, y_label, scaler, random_state = 26, min_samples_split=mins, max_depth=maxd)
+        accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = random_forest_learning(df_aug, X_labels, y_label, scaler, random_state = 26, min_samples_split=mins, max_depth=maxd)
 
         # store assessment scores
         model_name_plot.append(f'RF{maxd}')
@@ -111,7 +111,7 @@ for mins in min_samples_split:
         time_plot.append(time_consumption)
 
 # # learn support vector machine
-# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = support_vector_learning(df_aug, X_labels, y_label, scaler, random_state = 26)
 #
 # # store assessment scores
 # model_name_plot.append('SVC')
@@ -123,7 +123,7 @@ for mins in min_samples_split:
 # time_plot.append(time_consumption)
 #
 # # learn naive bayes
-# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = # bayes_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = # bayes_learning(df_aug, X_labels, y_label, scaler, random_state = 26)
 #
 # # store assessment scores
 # model_name_plot.append('NB')
@@ -135,7 +135,7 @@ for mins in min_samples_split:
 # time_plot.append(time_consumption)
 #
 # # learn k-nearest neighbors
-# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = # knn_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+# accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = # knn_learning(df_aug, X_labels, y_label, scaler, random_state = 26)
 #
 # # store assessment scores
 # model_name_plot.append('KNN')
@@ -147,7 +147,7 @@ for mins in min_samples_split:
 # time_plot.append(time_consumption)
 #
 # learn dummy
-accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = dummy_learning(df_extended, X_labels, y_label, scaler, random_state = 26)
+accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption = dummy_learning(df_aug, X_labels, y_label, scaler, random_state = 26)
 
 # store rf assessment scores
 model_name_plot.append('DUMMY')
@@ -160,14 +160,18 @@ time_plot.append(time_consumption)
 
 compare_binary_classification(model_name_plot, prec_rec_plot, pr_auc_plot, fpr_tpr_plot, roc_auc_plot, acc_plot, time_plot)
 
+# learn model multiple times for statistical analysis of results
 if sample_size > 0:
-    # learn model multiple times for statistical analysis of results
-    store = np.empty(sample_size)
-    for i in range(sample_size):
-        print(f'Learning model {i}/{sample_size}')
-        store[i] = random_forest_learning(df_extended, X_labels, y_label, scaler)
-    print(store)
-    print(f'Mean: {np.mean(store)}')
-    print(f'std : {np.std(store)}')
-    print(f'min : {np.min(store)}')
-    print(f'max : {np.max(store)}')
+    store = np.empty([len(max_depth), sample_size])
+    for i in range(len(max_depth)):
+        for j in range(sample_size):
+            print(f'Learning model {j+1}/{sample_size} with max_depth = {max_depth[i]}/{max_depth}')
+            accuracy, _, _, _, _, _, _, _ = random_forest_learning(df_aug, X_labels, y_label, scaler, random_state = 26, max_depth=max_depth[i])
+            store[i][j] = accuracy
+
+    max_acci = [0, 0] # first entry is index and second is maximum of accuracies
+    for i in range(len(max_depth)):
+        acc_mean = np.mean(store[i])
+        if acc_mean > max_acci[0]:
+            max_acci = [i, acc_mean]
+    print(f'Maximum accuracy is {max_acci[1]} with max_depth = {max_depth[max_acci[0]]}')

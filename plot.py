@@ -6,6 +6,7 @@ def compare_binary_classification(names, prec_rec_values, prec_rec_auc, roc_valu
   sns.set_style("darkgrid", {"grid.color": ".6", "grid.linestyle": ":"})
   cmap = sns.color_palette('colorblind', n_colors=len(names))
   fig, axs = plt.subplots(2, 2)#, figsize=(16, 5))
+  fig.suptitle("Comparison of different learning techniques")
   for i in range(len(names)):
     axs[0, 0].plot(roc_values[i][0], roc_values[i][1], label='{} AUC {:.3f}'.format(names[i], roc_auc[i]), c=cmap[i])
     axs[0, 1].plot(prec_rec_values[i][1], prec_rec_values[i][0], label='{} AUC-PR {:.3f}'.format(names[i], prec_rec_auc[i]), c=cmap[i])

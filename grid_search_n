@@ -1,7 +1,12 @@
 #!/bin/bash
 
+echo "n_games; ml_alg; keys; scaler; accuracy; pr_auc; roc_auc; time_consumption; params" > output/past_n_games.csv
+
 for n in $(seq 4 50)
 do
-  echo "Start on run number $n"
-  python main_past_n_games.py $n > output/png_n${n}_wAST_woFTPCT.txt
+  for scaler in MinMax Standard
+  do
+    echo "Start on run number $n with scaler $scaler"
+    python main_past_n_games.py $n $scaler
+  done
 done
