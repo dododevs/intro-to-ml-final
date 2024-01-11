@@ -54,8 +54,8 @@ with open(file_path, 'a') as out_file:
     # then iterate through every possible subset of the list
     # and delete that subset of features. Part of the grid search for optimal params
     # and done in absence of thorough statistical influence analysis
-    all_features = [["prev_FT_PCT_home", "prev_FT_PCT_away"], ["prev_FG3_PCT_home", "prev_FG3_PCT_away"], ["prev_AST_home", "prev_AST_away"],
-                    ["prev_REB_home", "prev_REB_away"], ["prev_FT_PCT_diff"], ["prev_FG3_PCT_diff"], ["prev_AST_diff"], ["prev_REB_diff"]]
+    all_features = [["prev_FT_PCT_home", "prev_FT_PCT_away"], ["prev_FG3_PCT_home", "prev_FG3_PCT_away"],
+                    ["prev_AST_home", "prev_AST_away"], ["prev_FT_PCT_diff"], ["prev_FG3_PCT_diff"], ["prev_AST_diff"]]
 
     # all_features = [[]] # use this to delete no feature
 
@@ -64,7 +64,7 @@ with open(file_path, 'a') as out_file:
     for delete_features in power_set:
         # force file writing to avoid loss of data if something breaks
         out_file.flush()
-        os.fsync()
+        os.fsync(out_file)
 
         delete_features_flattened = [item for l in delete_features for item in l]
 
@@ -99,12 +99,12 @@ with open(file_path, 'a') as out_file:
         # time_plot.append(time_consumption)
 
         # learn support vector machine
-        #accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption, params = support_vector_learning(df_work, X_labels, y_label, scaler, random_state = 26)
+        accuracy, precision, recall, pr_auc, fpr, tpr, roc_auc, time_consumption, params = support_vector_learning(df_work, X_labels, y_label, scaler, random_state = 26)
 
         # write results into csv to access them later
-        #out_string = f'{n_games}; svc; {df_work.keys().values}; {scaler}; {accuracy}; {pr_auc}; {roc_auc}; {time_consumption}; {params}'
-        #out_string = out_string.replace("\n", "")
-        #out_file.write(out_string + "\n")
+        out_string = f'{n_games}; svc; {df_work.keys().values}; {scaler}; {accuracy}; {pr_auc}; {roc_auc}; {time_consumption}; {params}'
+        out_string = out_string.replace("\n", "")
+        out_file.write(out_string + "\n")
 
         # # store assessment scores
         # model_name_plot.append('SVC')

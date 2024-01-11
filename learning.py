@@ -43,23 +43,22 @@ def classification_learning(model, df, X_labels, y_label, scaler, test_size, ran
         case "rf":
             print('Start Random Forest classification')
             classifier = RandomForestClassifier()
-            param_grid = dict(clf__min_samples_split = range(2,7),
+            param_grid = dict(clf__min_samples_split = range(2,8),
                               clf__max_depth = range(3,13))
         case "svc":
             print('Start Support Vector classification')
             classifier = SVC(probability=True, cache_size=2000)
-            param_grid = [dict(clf__kernel = ["rbf"], clf__gamma = [2**p for p in range(-15,4)], clf__C = [2**p for p in range(-5, 16)]),
-                          dict(clf__kernel = ["poly"], clf__degree = [2,3], clf__gamma = [2**p for p in range(-15,4)], clf__C = [2**p for p in range(-5, 16)])]
+            param_grid = dict(clf__gamma = [2**p for p in range(-15,4)], clf__C = [2**p for p in range(-5, 16)])
         case "nb":
             print('Start Naive Bayes classification')
             classifier = BernoulliNB(force_alpha = True)
-            param_grid = dict(clf__alpha = np.linspace(1e-10,1.4,100))
+            param_grid = dict(clf__alpha = np.linspace(1e-10,1.4,50))
         case "knn":
             print('Start k-nearest neighbors classification')
             classifier = KNeighborsClassifier()
-            param_grid = dict(clf__n_neighbors = range(3,11),
+            param_grid = dict(clf__n_neighbors = range(3,12,2),
                               clf__weights = ["uniform", "distance"],
-                              clf__p = [1,2,3])
+                              clf__p = [1,2])
         case "dummy":
             print('Start dummy classification')
             classifier = DummyClassifier()
