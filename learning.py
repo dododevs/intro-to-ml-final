@@ -14,19 +14,19 @@ import numpy as np
 
 from timeit import default_timer as timer
 
-def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.8, random_state=None, min_samples_split=2, max_depth=None):
+def random_forest_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None, min_samples_split=2, max_depth=None):
     return classification_learning("rf", df, X_labels, y_label, scaler, test_size, random_state, min_samples_split, max_depth)
 
-def support_vector_learning(df, X_labels, y_label, scaler=None, test_size=0.8, random_state=None):
+def support_vector_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("svc", df, X_labels, y_label, scaler, test_size, random_state)
 
-def bayes_learning(df, X_labels, y_label, scaler=None, test_size=0.8, random_state=None):
+def bayes_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("nb", df, X_labels, y_label, scaler, test_size, random_state)
 
-def knn_learning(df, X_labels, y_label, scaler=None, test_size=0.8, random_state=None):
+def knn_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("knn", df, X_labels, y_label, scaler, test_size, random_state)
 
-def dummy_learning(df, X_labels, y_label, scaler=None, test_size=0.8, random_state=None):
+def dummy_learning(df, X_labels, y_label, scaler=None, test_size=0.2, random_state=None):
     return classification_learning("dummy", df, X_labels, y_label, scaler, test_size, random_state)
 
 def classification_learning(model, df, X_labels, y_label, scaler, test_size, random_state, min_samples_split=2, max_depth=None):
@@ -48,7 +48,10 @@ def classification_learning(model, df, X_labels, y_label, scaler, test_size, ran
         case "svc":
             print('Start Support Vector classification')
             classifier = SVC(probability=True, cache_size=2000)
-            param_grid = dict(clf__gamma = [2**p for p in range(-15,4)], clf__C = [2**p for p in range(-5, 16)])
+            param_grid = [dict(clf__gamma = [2**p for p in range(-15, 4)],
+                               clf__C = [2**p for p in range(-5, 7)]),
+                          dict(clf__gamma = [2**p for p in range(-15, -3)],
+                               clf__C = [2**p for p in range(7, 13)])]
         case "nb":
             print('Start Naive Bayes classification')
             classifier = BernoulliNB(force_alpha = True)
